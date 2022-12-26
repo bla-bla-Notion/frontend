@@ -107,7 +107,7 @@ function MainPage() {
       <div>
         <h3>
           <div
-            style={{ width: '300px', height: '300px' }}
+            style={{ width: '1300px', height: '1800px' }}
             name="message"
             id="mainShow"
             ref={showRef}
@@ -118,29 +118,44 @@ function MainPage() {
   };
 
   return (
-    <div className="card">
-      <Toggle show={!visible}>
-        <form>
-          <h1>편집하기</h1>
-          <button onClick={onToggleHandler}>편집완료</button>
-          <div>
-            <div
-              style={{ width: '300px', height: '300px' }}
-              name="message"
-              id="container"
-              ref={wrapperRef}
-            />
+    //<div className="card">
+    <Wrap>
+      <Backgr>
+        <Nickname>
+          <div>참여자</div>
+          <div>아시안쌤</div>
+          <div>soogineer</div>
+          <div>익명의 뿡뿡이</div>
+          <div>익명의 시조새</div>
+          <div>익명의 오랑우탄</div>
+          <div>오랑우탄</div>
+        </Nickname>
+      </Backgr>
+      <Textbox>
+        <Title style={{ color: 'gray' }}>o o o님이 입장하셨습니다.</Title>
+        <Toggle show={!visible}>
+          <form>
+            <Button onClick={onToggleHandler}>편집완료</Button>
+            <div>
+              <div
+                style={{ width: '1300px', height: '1800px' }}
+                name="message"
+                id="container"
+                ref={wrapperRef}
+              />
+            </div>
+          </form>
+        </Toggle>
+        <Toggle show={visible}>
+          <div className="render-chat">
+            <Button onClick={onCompleteHandler}>편집하기</Button>
+            <h1>bla-bla-Notion</h1>
+            {renderChat()}
           </div>
-        </form>
-      </Toggle>
-      <Toggle show={visible}>
-        <div className="render-chat">
-          <button onClick={onCompleteHandler}>편집하기</button>
-          <h1>bla-bla-Notion</h1>
-          {renderChat()}
-        </div>
-      </Toggle>
-    </div>
+        </Toggle>
+      </Textbox>
+    </Wrap>
+    //</div>
   );
 }
 
@@ -148,4 +163,42 @@ const Toggle = styled.div`
   display: ${({ show }) => (show ? '' : 'none')};
 `;
 
+const Wrap = styled.div`
+  justify-content: center;
+  max-width: 2000px;
+  //align-items: center;
+  display: flex;
+  height: 100vh;
+`;
+
+const Backgr = styled.div`
+  width: 400px;
+  height: 2000px;
+  background: #d9d9d9;
+  margin-bottom: 60px;
+`;
+
+const Nickname = styled.div`
+  font-size: medium;
+  font-weight: bold;
+  padding-left: 20px;
+  padding-top: 20px;
+`;
+
+const Title = styled.div`
+  align-items: center;
+  margin-top: 60px;
+  margin-bottom: 50px;
+  font-weight: bold;
+`;
+
+const Textbox = styled.div`
+  text-align: center;
+  margin-bottom: 100px;
+`;
+
+const Button = styled.div`
+  text-align: center;
+  padding-right: 10px;
+`;
 export default MainPage;
