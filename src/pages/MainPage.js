@@ -3,6 +3,7 @@ import io from 'socket.io-client';
 import styled from 'styled-components';
 import 'quill/dist/quill.snow.css';
 import Quill from 'quill';
+import UserItem from '../components/userItem';
 
 function MainPage() {
   const TOOLBAR_OPTIONS = [
@@ -45,7 +46,6 @@ function MainPage() {
     if (socket == null || quill == null) return;
     const handler = delta => {
       mainPost.updateContents(delta);
-      console.log(delta);
     };
     socket.on('message', handler);
     return () => {
@@ -65,6 +65,18 @@ function MainPage() {
 
     setMainPost(Q);
   }, []);
+
+  //접속유저 받아오기
+  const [users, setUsers] = useState([]);
+  useEffect(() => {
+    if (socket == null || quill == null) return;
+    socket.on('nickname', data => {
+      setUsers(data.usersList);
+    });
+    socket.on('disconnectedUser', data => {
+      setUsers(data.usersList);
+    });
+  }, [socket, quill, users]);
 
   useEffect(() => {
     if (socket == null || quill == null) return;
@@ -118,17 +130,14 @@ function MainPage() {
   };
 
   return (
-    //<div className="card">
     <Wrap>
       <Backgr>
         <Nickname>
-          <div>참여자</div>
-          <div>아시안쌤</div>
-          <div>soogineer</div>
-          <div>익명의 뿡뿡이</div>
-          <div>익명의 시조새</div>
-          <div>익명의 오랑우탄</div>
-          <div>오랑우탄</div>
+          {users
+            ? users.map(user => {
+                return <UserItem key={user.socketId} user={user} />;
+              })
+            : null}
         </Nickname>
       </Backgr>
       <Textbox>
@@ -155,7 +164,6 @@ function MainPage() {
         </Toggle>
       </Textbox>
     </Wrap>
-    //</div>
   );
 }
 
@@ -168,14 +176,13 @@ const Wrap = styled.div`
   max-width: 2000px;
   //align-items: center;
   display: flex;
-  height: 100vh;
+  height: 100%;
 `;
 
 const Backgr = styled.div`
   width: 400px;
-  height: 2000px;
+  height: auto;
   background: #d9d9d9;
-  margin-bottom: 60px;
 `;
 
 const Nickname = styled.div`
