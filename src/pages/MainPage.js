@@ -1,29 +1,96 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import io from 'socket.io-client';
-import './App.css';
 import styled from 'styled-components';
+import 'quill/dist/quill.snow.css';
+import Quill from 'quill';
 
-function App() {
-  const [state, setState] = useState('');
-  const [post, setPost] = useState('');
-  const [visible, SetVisible] = useState(true);
+function MainPage() {
+  const TOOLBAR_OPTIONS = [
+    [{ header: [1, 2, 3, 4, 5, 6, false] }],
+    [{ font: [] }],
+    [{ list: 'ordered' }, { list: 'bullet' }],
+    ['bold', 'italic', 'underline'],
+    [{ color: [] }, { background: [] }],
+    [{ script: 'sub' }, { script: 'super' }],
+    [{ align: [] }],
+    ['image', 'blockquote', 'code-block'],
+    ['clean'],
+  ];
 
-  const socketRef = useRef();
+  const [socket, setSocket] = useState(); //소켓을 어디서든 접근가능하게
+  const [quill, setQuill] = useState(); //quill접근을 어디서든 가능하게
+  const [mainPost, setMainPost] = useState();
 
   useEffect(() => {
-    socketRef.current = io.connect('http://localhost:4000');
+    const s = io('https://dev-jn.shop');
+    setSocket(s);
+    return () => {
+      s.disconnect();
+    };
+  }, []);
 
-    socketRef.current.on('message', message => {
-      setPost(message);
+  useEffect(() => {
+    if (socket == null || quill == null) return;
+    const handler = (delta, oldDelta, source) => {
+      if (source !== 'user') return;
+      socket.emit('message', delta);
+    };
+    quill.on('text-change', handler);
+    return () => {
+      quill.off('text-change', handler);
+    };
+  }, [socket, quill]);
+
+  useEffect(() => {
+    if (socket == null || quill == null) return;
+    const handler = delta => {
+      mainPost.updateContents(delta);
+      console.log(delta);
+    };
+    socket.on('message', handler);
+    return () => {
+      socket.off('message', handler);
+    };
+  }, [socket, quill]);
+
+  const showRef = useCallback(showRef => {
+    if (showRef == null) return;
+    showRef.innerHTML = '';
+    const editor = document.createElement('div');
+    showRef.append(editor);
+    const Q = new Quill(editor, {
+      modules: { toolbar: false },
+      readOnly: true,
     });
 
-    return () => socketRef.current.disconnect();
-  }, [post]);
+    setMainPost(Q);
+  }, []);
 
-  const onTextChange = e => {
-    setState(e.target.value);
-    socketRef.current.emit('message', state);
-  };
+  useEffect(() => {
+    if (socket == null || quill == null) return;
+    const handler = delta => {
+      quill.updateContents(delta);
+    };
+    socket.on('message', handler);
+    return () => {
+      socket.off('message', handler);
+    };
+  }, [socket, quill]);
+
+  const wrapperRef = useCallback(wrapper => {
+    if (wrapper == null) return;
+    wrapper.innerHTML = '';
+    const editor = document.createElement('div');
+    wrapper.append(editor);
+    const q = new Quill(editor, {
+      theme: 'snow',
+      modules: { toolbar: TOOLBAR_OPTIONS },
+    });
+
+    setQuill(q);
+  }, []);
+
+  const [visible, SetVisible] = useState(true);
 
   const onToggleHandler = e => {
     e.preventDefault();
@@ -39,7 +106,12 @@ function App() {
     return (
       <div>
         <h3>
-          <span>{post}</span>
+          <div
+            style={{ width: '300px', height: '300px' }}
+            name="message"
+            id="mainShow"
+            ref={showRef}
+          />
         </h3>
       </div>
     );
@@ -52,12 +124,11 @@ function App() {
           <h1>편집하기</h1>
           <button onClick={onToggleHandler}>편집완료</button>
           <div>
-            <textarea
+            <div
               style={{ width: '300px', height: '300px' }}
               name="message"
-              value={post}
-              onChange={e => onTextChange(e)}
               id="container"
+              ref={wrapperRef}
             />
           </div>
         </form>
@@ -77,4 +148,4 @@ const Toggle = styled.div`
   display: ${({ show }) => (show ? '' : 'none')};
 `;
 
-export default App;
+export default MainPage;
