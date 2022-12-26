@@ -1,8 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
 import io from 'socket.io-client';
+import './App.css';
 import styled from 'styled-components';
 
-function MainPage() {
+function App() {
   const [state, setState] = useState('');
   const [post, setPost] = useState('');
   const [visible, SetVisible] = useState(true);
@@ -15,10 +16,9 @@ function MainPage() {
     socketRef.current.on('message', message => {
       setPost(message);
     });
-    console.log(socketRef.current);
 
     return () => socketRef.current.disconnect();
-  }, []);
+  }, [post]);
 
   const onTextChange = e => {
     setState(e.target.value);
@@ -55,8 +55,9 @@ function MainPage() {
             <textarea
               style={{ width: '300px', height: '300px' }}
               name="message"
-              defaultValue={post}
+              value={post}
               onChange={e => onTextChange(e)}
+              id="container"
             />
           </div>
         </form>
@@ -76,4 +77,4 @@ const Toggle = styled.div`
   display: ${({ show }) => (show ? '' : 'none')};
 `;
 
-export default MainPage;
+export default App;
