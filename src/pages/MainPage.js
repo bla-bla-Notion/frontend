@@ -32,9 +32,18 @@ function MainPage() {
 
   useEffect(() => {
     if (socket == null || quill == null) return;
+
+    socket.once('load-document', document => {
+      quill.setContents(document);
+    });
+  }, [socket, quill]);
+
+  useEffect(() => {
+    if (socket == null || quill == null) return;
     const handler = (delta, oldDelta, source) => {
       if (source !== 'user') return;
-      socket.emit('message', delta);
+      socket.emit('send-changes', delta);
+      socket.emit('save-document', quill.getContents());
     };
     quill.on('text-change', handler);
     return () => {
@@ -47,9 +56,11 @@ function MainPage() {
     const handler = delta => {
       mainPost.updateContents(delta);
     };
-    socket.on('message', handler);
+    socket.on('receive-changes', handler => {
+      console.log(handler);
+    });
     return () => {
-      socket.off('message', handler);
+      socket.off('receive-changes', handler);
     };
   }, [socket, quill]);
 
@@ -83,9 +94,10 @@ function MainPage() {
     const handler = delta => {
       quill.updateContents(delta);
     };
-    socket.on('message', handler);
+    socket.on('receive-changes', handler);
+    console.log(handler);
     return () => {
-      socket.off('message', handler);
+      socket.off('receive-changes', handler);
     };
   }, [socket, quill]);
 
@@ -98,36 +110,35 @@ function MainPage() {
       theme: 'snow',
       modules: { toolbar: TOOLBAR_OPTIONS },
     });
-
     setQuill(q);
   }, []);
 
-  const [visible, SetVisible] = useState(true);
+  // const [visible, SetVisible] = useState(true);
 
-  const onToggleHandler = e => {
-    e.preventDefault();
-    SetVisible(!visible);
-  };
+  // const onToggleHandler = e => {
+  //   e.preventDefault();
+  //   SetVisible(!visible);
+  // };
 
-  const onCompleteHandler = e => {
-    e.preventDefault();
-    SetVisible(!visible);
-  };
+  // const onCompleteHandler = e => {
+  //   e.preventDefault();
+  //   SetVisible(!visible);
+  // };
 
-  const renderChat = () => {
-    return (
-      <div>
-        <h3>
-          <div
-            style={{ width: '1200px', height: '1800px' }}
-            name="message"
-            id="mainShow"
-            ref={showRef}
-          />
-        </h3>
-      </div>
-    );
-  };
+  // const renderChat = () => {
+  //   return (
+  //     <div>
+  //       <h3>
+  //         <div
+  //           style={{ width: '1200px', height: '1800px' }}
+  //           name="message"
+  //           id="mainShow"
+  //           ref={showRef}
+  //         />
+  //       </h3>
+  //     </div>
+  //   );
+  // };
 
   return (
     <Wrap>
@@ -142,9 +153,9 @@ function MainPage() {
       </Backgr>
       <Textbox>
         <Title style={{ color: 'gray' }}>o o o님이 입장하셨습니다.</Title>
-        <Toggle show={!visible}>
+        <Toggle>
           <form>
-            <Button onClick={onToggleHandler}>편집완료</Button>
+            {/* <Button>편집완료</Button> */}
             <div>
               <div
                 style={{ width: '120%', height: '120%' }}
@@ -155,20 +166,20 @@ function MainPage() {
             </div>
           </form>
         </Toggle>
-        <Toggle show={visible}>
+        {/* <Toggle show={visible}>
           <div className="render-chat">
             <Button onClick={onCompleteHandler}>편집하기</Button>
             <h1>bla-bla-Notion</h1>
             {renderChat()}
           </div>
-        </Toggle>
+        </Toggle> */}
       </Textbox>
     </Wrap>
   );
 }
 
 const Toggle = styled.div`
-  display: ${({ show }) => (show ? '' : 'none')};
+  /* display: ${({ show }) => (show ? '' : 'none')}; */
 `;
 
 const Wrap = styled.div`
@@ -180,9 +191,10 @@ const Wrap = styled.div`
 `;
 
 const Backgr = styled.div`
-  width: 400px;
-  height: auto;
-  background: #d9d9d9;
+  width: 20%;
+  min-width: 170px;
+  height: 1000px;
+  background: rgb(247, 247, 245);
 `;
 
 const Nickname = styled.div`
