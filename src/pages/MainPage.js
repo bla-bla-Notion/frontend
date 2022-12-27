@@ -20,8 +20,8 @@ function MainPage() {
 
   const [socket, setSocket] = useState(); //소켓을 어디서든 접근가능하게
   const [quill, setQuill] = useState(); //quill접근을 어디서든 가능하게
-  const [mainPost, setMainPost] = useState();
 
+  //서버와 socket.io 연결
   useEffect(() => {
     const s = io('https://dev-jn.shop');
     setSocket(s);
@@ -30,52 +30,31 @@ function MainPage() {
     };
   }, []);
 
+  //사이트 처음 접속 시 이미 존재하는 데이터 받아오기
   useEffect(() => {
     if (socket == null || quill == null) return;
 
     socket.once('load-document', document => {
       quill.setContents(document);
+      console.log('기존 데이터 : ', document);
     });
   }, [socket, quill]);
 
+  //작성창 데이터 보내기
   useEffect(() => {
     if (socket == null || quill == null) return;
     const handler = (delta, oldDelta, source) => {
       if (source !== 'user') return;
       socket.emit('send-changes', delta);
       socket.emit('save-document', quill.getContents());
+      console.log('delta : ', delta);
+      console.log('qgC : ', quill.getContents());
     };
     quill.on('text-change', handler);
     return () => {
       quill.off('text-change', handler);
     };
   }, [socket, quill]);
-
-  useEffect(() => {
-    if (socket == null || quill == null) return;
-    const handler = delta => {
-      mainPost.updateContents(delta);
-    };
-    socket.on('receive-changes', handler => {
-      console.log(handler);
-    });
-    return () => {
-      socket.off('receive-changes', handler);
-    };
-  }, [socket, quill]);
-
-  const showRef = useCallback(showRef => {
-    if (showRef == null) return;
-    showRef.innerHTML = '';
-    const editor = document.createElement('div');
-    showRef.append(editor);
-    const Q = new Quill(editor, {
-      modules: { toolbar: false },
-      readOnly: true,
-    });
-
-    setMainPost(Q);
-  }, []);
 
   //접속유저 받아오기
   const [users, setUsers] = useState([]);
@@ -89,18 +68,19 @@ function MainPage() {
     });
   }, [socket, quill, users]);
 
+  //변경데이터 받아오기, broadcast
   useEffect(() => {
     if (socket == null || quill == null) return;
     const handler = delta => {
       quill.updateContents(delta);
     };
     socket.on('receive-changes', handler);
-    console.log(handler);
     return () => {
       socket.off('receive-changes', handler);
     };
   }, [socket, quill]);
 
+  //textarea
   const wrapperRef = useCallback(wrapper => {
     if (wrapper == null) return;
     wrapper.innerHTML = '';
@@ -112,6 +92,34 @@ function MainPage() {
     });
     setQuill(q);
   }, []);
+
+  // 주석 모아놓은 곳
+  // const [mainPost, setMainPost] = useState();
+  // useEffect(() => {
+  //   if (socket == null || quill == null) return;
+  //   const handler = delta => {
+  //     mainPost.setContents(delta);
+  //   };
+  //   socket.on('receive-changes', handler => {
+  //     console.log(handler);
+  //   });
+  //   return () => {
+  //     socket.off('receive-changes', handler);
+  //   };
+  // }, [socket, quill, mainPost]);
+
+  // const showRef = useCallback(showRef => {
+  //   if (showRef == null) return;
+  //   showRef.innerHTML = '';
+  //   const editor = document.createElement('div');
+  //   showRef.append(editor);
+  //   const Q = new Quill(editor, {
+  //     modules: { toolbar: false },
+  //     readOnly: true,
+  //   });
+
+  //   setMainPost(Q);
+  // }, []);
 
   // const [visible, SetVisible] = useState(true);
 
@@ -142,66 +150,68 @@ function MainPage() {
 
   return (
     <Wrap>
-      <Backgr>
-        <Nickname>
+      <SideBar>
+        <NicknameList>
+          <NicknameTitle>참여중인 닉네임</NicknameTitle>
           {users
             ? users.map(user => {
                 return <UserItem key={user.socketId} user={user} />;
               })
             : null}
-        </Nickname>
-      </Backgr>
+        </NicknameList>
+      </SideBar>
       <Textbox>
-        <Title style={{ color: 'gray' }}>o o o님이 입장하셨습니다.</Title>
-        <Toggle>
-          <form>
-            {/* <Button>편집완료</Button> */}
-            <div>
-              <div
-                style={{ width: '120%', height: '120%' }}
-                name="message"
-                id="container"
-                ref={wrapperRef}
-              />
-            </div>
-          </form>
-        </Toggle>
-        {/* <Toggle show={visible}>
+        <div>
+          <Title style={{ color: 'gray' }}>o o o님이 입장하셨습니다.</Title>
+          <div>
+            <form>
+              {/* <Button>편집완료</Button> */}
+              <div>
+                <div
+                  style={{ width: '120%', height: 'auto' }}
+                  name="message"
+                  id="container"
+                  ref={wrapperRef}
+                />
+              </div>
+            </form>
+          </div>
+          {/* <Toggle show={visible}>
           <div className="render-chat">
             <Button onClick={onCompleteHandler}>편집하기</Button>
             <h1>bla-bla-Notion</h1>
             {renderChat()}
           </div>
         </Toggle> */}
+        </div>
       </Textbox>
     </Wrap>
   );
 }
 
-const Toggle = styled.div`
-  /* display: ${({ show }) => (show ? '' : 'none')}; */
-`;
-
 const Wrap = styled.div`
-  justify-content: center;
-  max-width: 2000px;
-  //align-items: center;
+  max-width: 100%;
   display: flex;
   height: 100%;
 `;
 
-const Backgr = styled.div`
+const SideBar = styled.div`
   width: 20%;
   min-width: 170px;
   height: 1000px;
   background: rgb(247, 247, 245);
 `;
 
-const Nickname = styled.div`
+const NicknameList = styled.div`
   font-size: medium;
   font-weight: bold;
-  padding-left: 20px;
-  padding-top: 20px;
+  display: block;
+  padding-bottom: 10px;
+`;
+
+const NicknameTitle = styled.div`
+  text-align: center;
+  margin-top: 10px;
 `;
 
 const Title = styled.div`
@@ -212,12 +222,11 @@ const Title = styled.div`
 `;
 
 const Textbox = styled.div`
+  width: 100%;
   text-align: center;
   margin-bottom: 100px;
+  display: flex;
+  justify-content: center;
 `;
 
-const Button = styled.div`
-  text-align: center;
-  padding-right: 10px;
-`;
 export default MainPage;
