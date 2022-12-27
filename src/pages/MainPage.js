@@ -147,7 +147,7 @@ function MainPage() {
             <Button onClick={onToggleHandler}>편집완료</Button>
             <div>
               <div
-                style={{ width: '1300px', height: '1800px' }}
+                style={{ width: '120%', height: '120%' }}
                 name="message"
                 id="container"
                 ref={wrapperRef}
