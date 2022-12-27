@@ -1,7 +1,8 @@
 import MainPage from './pages/MainPage';
+import Router from './shared/Routes';
 
 function App() {
-  return <MainPage></MainPage>;
+  return <Router />;
 }
 
 export default App;
