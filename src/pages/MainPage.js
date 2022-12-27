@@ -119,7 +119,7 @@ function MainPage() {
       <div>
         <h3>
           <div
-            style={{ width: '1300px', height: '1800px' }}
+            style={{ width: '120%', height: '120%' }}
             name="message"
             id="mainShow"
             ref={showRef}
