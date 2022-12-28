@@ -6,6 +6,7 @@ import Quill from 'quill';
 import UserItem from '../components/userItem';
 import { useDispatch, useSelector } from 'react-redux';
 import { __getPost } from '../redux/modules/PostsSlice';
+import './snow.css';
 
 function MainPage() {
   const TOOLBAR_OPTIONS = [
@@ -107,6 +108,88 @@ function MainPage() {
     });
     setQuill(q);
   }, []);
+
+  const body = document.querySelector('body');
+  const MIN_DURATION = 10;
+  function makeSnowflake() {
+    const snowflake = document.createElement('div');
+    const delay = Math.random() * 10;
+    const initialOpacity = Math.random();
+    const duration = Math.random() * 20 + MIN_DURATION;
+
+    snowflake.classList.add('snowflake');
+    snowflake.style.left = `${Math.random() * window.screen.width}px`;
+    snowflake.style.animationDelay = `${delay}s`;
+    snowflake.style.opacity = initialOpacity;
+    snowflake.style.animation = `fall ${duration}s linear`;
+
+    body.appendChild(snowflake);
+
+    setTimeout(() => {
+      body.removeChild(snowflake);
+      makeSnowflake();
+    }, (duration + delay) * 1000);
+  }
+
+  makeSnowflake();
+  for (let index = 0; index < 50; index++) {
+    makeSnowflake(makeSnowflake, 500 * index);
+  }
+
+  // 주석 모아놓은 곳
+  // const [mainPost, setMainPost] = useState();
+  // useEffect(() => {
+  //   if (socket == null || quill == null) return;
+  //   const handler = delta => {
+  //     mainPost.setContents(delta);
+  //   };
+  //   socket.on('receive-changes', handler => {
+  //     console.log(handler);
+  //   });
+  //   return () => {
+  //     socket.off('receive-changes', handler);
+  //   };
+  // }, [socket, quill, mainPost]);
+
+  // const showRef = useCallback(showRef => {
+  //   if (showRef == null) return;
+  //   showRef.innerHTML = '';
+  //   const editor = document.createElement('div');
+  //   showRef.append(editor);
+  //   const Q = new Quill(editor, {
+  //     modules: { toolbar: false },
+  //     readOnly: true,
+  //   });
+
+  //   setMainPost(Q);
+  // }, []);
+
+  // const [visible, SetVisible] = useState(true);
+
+  // const onToggleHandler = e => {
+  //   e.preventDefault();
+  //   SetVisible(!visible);
+  // };
+
+  // const onCompleteHandler = e => {
+  //   e.preventDefault();
+  //   SetVisible(!visible);
+  // };
+
+  // const renderChat = () => {
+  //   return (
+  //     <div>
+  //       <h3>
+  //         <div
+  //           style={{ width: '1200px', height: '1800px' }}
+  //           name="message"
+  //           id="mainShow"
+  //           ref={showRef}
+  //         />
+  //       </h3>
+  //     </div>
+  //   );
+  // };
 
   return (
     <Wrap>

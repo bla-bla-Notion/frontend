@@ -1,0 +1,16 @@
+.snowflake {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #bdd2d7;
+  position: absolute;
+  top: -8px;
+}
+@keyframes fall {
+  from {
+  }
+  to {
+    transform: translateY(100vh);
+    opacity: 0;
+  }
+}
