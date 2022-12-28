@@ -135,7 +135,7 @@ function MainPage() {
             <form>
               <div>
                 <div
-                  style={{ width: '120%', height: 'auto' }}
+                  style={{ width: '1000px', height: 'auto' }}
                   name="message"
                   id="container"
                   ref={wrapperRef}
@@ -160,6 +160,9 @@ const SideBar = styled.div`
   min-width: 170px;
   height: 1000px;
   background: rgb(247, 247, 245);
+  @media screen and (max-width: 1000px) {
+    display: none;
+  }
 `;
 
 const NicknameList = styled.div`
@@ -180,6 +183,7 @@ const Textbox = styled.div`
   margin-bottom: 100px;
   display: flex;
   justify-content: center;
+  position: relative;
 `;
 
 const NewUserTextBox = styled.div`
