@@ -29,7 +29,7 @@ const Header = () => {
               'https://www.notion.so/SA-4-8b7494504f0e46b58a3d3b6600afdfe8';
           }}
         >
-          🗒️ Bla-Bla-Notion (5조)
+          🗒️ Bla-Bla-Notion (4조)
         </HeaderItem>
       </HeaderLeft>
       <HeaderRight>
@@ -81,6 +81,9 @@ const HeaderItem = styled.div`
   user-select: none;
   cursor: pointer;
   font-size: 14px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
   &:hover {
     background-color: rgb(239, 239, 239);
     border-radius: 10px;
