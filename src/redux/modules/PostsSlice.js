@@ -1,10 +1,12 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import axios from 'axios';
+import { apis } from '../../shared/api';
 
 const initialState = {
   postList: [],
   isLoading: false,
   error: null,
+  targetPost: {},
 };
 
 //thunk 본문조회
@@ -12,8 +14,28 @@ export const __getPost = createAsyncThunk(
   'getPost',
   async (payload, thunkAPI) => {
     try {
-      const { data } = await axios.get(`https://dev-jn.shop/api/page`);
-
+      const { data } = await axios.get(`${process.env.REACT_APP_URL}/api/page`);
+      return thunkAPI.fulfillWithValue(data.data);
+    } catch (err) {
+      console.log(err);
+      return thunkAPI.rejectWithValue(err);
+    }
+  },
+);
+//thunk 상세페이지 특정 post 조회
+export const __getTargetPost = createAsyncThunk(
+  'getTargetPost',
+  async (payload, thunkAPI) => {
+    try {
+      const { data } = await apis.getpost(payload);
+      // .then(res => {
+      //   console.log(res);
+      //   if (res.status === 400) {
+      //     window.alert(res.body.errorMessage);
+      //     window.history.back();
+      //   }
+      // });
+      // console.log(data);
       return thunkAPI.fulfillWithValue(data.data);
     } catch (err) {
       console.log(err);
@@ -43,6 +65,22 @@ const postSlice = createSlice({
       })
       //로딩 완료. 실패 시
       .addCase(__getPost.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload;
+      })
+      // ----------------------------------------------------------
+      //타겟 post 조회
+      // 로딩 시작
+      .addCase(__getTargetPost.pending, state => {
+        state.isLoading = true;
+      })
+      //로딩 완료. 성공 시
+      .addCase(__getTargetPost.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.targetPost = action.payload;
+      })
+      //로딩 완료. 실패 시
+      .addCase(__getTargetPost.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload;
       });
