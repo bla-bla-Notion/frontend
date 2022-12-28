@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import Quill from 'quill';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { __getTargetPost } from '../redux/modules/PostsSlice';
@@ -8,6 +8,7 @@ import styled from 'styled-components';
 
 const PostDetailPage = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const param = useParams().postId;
 
   const target = useSelector(state => state.Post.targetPost);
@@ -58,8 +59,17 @@ const PostDetailPage = () => {
     <Wrap>
       {/* {isLoading ? null : target ? <div></div> : null} */}
       <CreatedAtText>
-        {a.createdAt.substr(0, 17)}00:00부터 {a.createdAt.substr(14, 22)}까지
-        작성된 내용입니다.
+        <div>
+          {a.createdAt.substr(0, 17)}00:00부터 {a.createdAt.substr(14, 22)}까지
+          작성된 내용입니다.
+        </div>
+        <GoBackButton
+          onClick={() => {
+            navigate('/');
+          }}
+        >
+          작성페이지로 이동하기
+        </GoBackButton>
       </CreatedAtText>
       <TextareaWrap>
         <h3>
@@ -90,12 +100,27 @@ const Wrap = styled.div`
 const CreatedAtText = styled.div`
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-end;
   height: 40px;
   font-size: 20px;
   text-align: center;
   border-bottom: 0.1px solid rgb(209, 208, 208);
   background: rgb(247, 247, 245);
+  gap: 130px;
+`;
+
+const GoBackButton = styled.button`
+  width: 140px;
+  height: 30px;
+  margin-right: 10px;
+  user-select: none;
+  cursor: pointer;
+  border: none;
+  border-radius: 10px;
+  background-color: rgb(247, 247, 245);
+  &:hover {
+    background-color: rgb(224, 224, 219);
+  }
 `;
 
 const TextareaWrap = styled.div`
