@@ -4,7 +4,11 @@ import styled from 'styled-components';
 import 'quill/dist/quill.snow.css';
 import Quill from 'quill';
 import UserItem from '../components/userItem';
-
+//
+import axios from 'axios';
+import { useDispatch, useSelector } from 'react-redux';
+import { __getPost } from '../redux/modules/PostsSlice';
+//
 function MainPage() {
   const TOOLBAR_OPTIONS = [
     [{ header: [1, 2, 3, 4, 5, 6, false] }],
@@ -20,7 +24,17 @@ function MainPage() {
 
   const [socket, setSocket] = useState(); //소켓을 어디서든 접근가능하게
   const [quill, setQuill] = useState(); //quill접근을 어디서든 가능하게
+  //
 
+  const { postList, isLoading } = useSelector(state => state.Post);
+  console.log();
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(__getPost());
+  }, [dispatch]);
+
+  //
   //서버와 socket.io 연결
   useEffect(() => {
     const s = io('https://dev-jn.shop');
@@ -44,6 +58,7 @@ function MainPage() {
   useEffect(() => {
     if (socket == null || quill == null) return;
     const handler = (delta, oldDelta, source) => {
+      console.log(delta);
       if (source !== 'user') return;
       socket.emit('send-changes', delta);
       socket.emit('save-document', quill.getContents());
@@ -159,6 +174,11 @@ function MainPage() {
               })
             : null}
         </NicknameList>
+        {isLoading
+          ? null
+          : postList
+          ? postList.map(post => <div key={post.pageId}>{post.createdAt}</div>)
+          : null}
       </SideBar>
       <Textbox>
         <div>
