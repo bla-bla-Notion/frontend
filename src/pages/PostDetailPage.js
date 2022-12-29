@@ -68,13 +68,8 @@ const PostDetailPage = () => {
           <CreatedAtText>
             <TopItemWrap>
               <div>
-                {new Date(targetPost.createdAt)
-                  .toLocaleString()
-                  .slice(0, 19)
-                  .replace(':', '')}
-                :00:00 ~{' '}
-                {new Date(targetPost.createdAt).toLocaleString().slice(17, 26)}
-                까지 작성된 내용입니다.
+                {new Date(targetPost.createdAt).toLocaleString()}에 저장된
+                데이터입니다.
               </div>
               <GoBackButton
                 onClick={() => {
@@ -141,7 +136,7 @@ const TopItemWrap = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 140px;
+  gap: 200px;
 `;
 
 const GoBackButton = styled.button`
