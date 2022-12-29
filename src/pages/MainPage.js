@@ -26,6 +26,7 @@ function MainPage() {
   const [quill, setQuill] = useState(); //quill접근을 어디서든 가능하게
 
   const { postList, isLoading } = useSelector(state => state.Post);
+  console.log(postList);
   const dispatch = useDispatch();
 
   //서버에 저장된 postList가져오기
@@ -199,7 +200,7 @@ function MainPage() {
               })
             : null}
         </NicknameList>
-        <MainPostList>
+        <MainList>
           📝리스트
           <p></p>
           {isLoading
@@ -209,7 +210,7 @@ function MainPage() {
                 <div key={post.pageId}>{post.createdAt}</div>
               ))
             : null}
-        </MainPostList>
+        </MainList>
       </SideBar>
       <Textbox>
         <Modal />
@@ -247,6 +248,9 @@ const SideBar = styled.div`
   min-width: 170px;
   height: 1000px;
   background: rgb(247, 247, 245);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   @media screen and (max-width: 1000px) {
     display: none;
   }
@@ -259,10 +263,15 @@ const NicknameList = styled.div`
   padding-bottom: 10px;
 `;
 
-const MainPostList = styled.div`
-  display: block;
-  margin-top: 30px;
-  padding-left: 10px;
+const MainList = styled.div`
+  /* position: fixed;
+  bottom: 0;
+  width: 100%;
+  margin-left: 20px;
+  margin-bottom: 10px; */
+  position: relative;
+  transform: translateY(340%);
+  padding-bottom: 10px;
 `;
 const NicknameTitle = styled.div`
   text-align: center;
