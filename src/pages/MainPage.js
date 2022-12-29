@@ -25,6 +25,7 @@ function MainPage() {
   const [quill, setQuill] = useState(); //quill접근을 어디서든 가능하게
 
   const { postList, isLoading } = useSelector(state => state.Post);
+  console.log(postList);
   const dispatch = useDispatch();
 
   //서버에 저장된 postList가져오기
@@ -43,7 +44,7 @@ function MainPage() {
   useEffect(() => {
     if (socket == null || quill == null) return;
 
-    socket.once('load-document', document => {
+    socket.on('load-document', document => {
       quill.setContents(document);
       console.log('기존 데이터 : ', document);
     });
@@ -202,11 +203,17 @@ function MainPage() {
               })
             : null}
         </NicknameList>
-        {isLoading
-          ? null
-          : postList
-          ? postList.map(post => <div key={post.pageId}>{post.createdAt}</div>)
-          : null}
+        <MainPostList>
+          📝리스트
+          <p></p>
+          {isLoading
+            ? null
+            : postList
+            ? postList.map(post => (
+                <div key={post.pageId}>{post.createdAt}</div>
+              ))
+            : null}
+        </MainPostList>
       </SideBar>
       <Textbox>
         <div>
@@ -255,6 +262,12 @@ const NicknameList = styled.div`
   padding-bottom: 10px;
 `;
 
+const MainPostList = styled.div`
+  display: block;
+  margin-top: 30px;
+  padding-left: 10px;
+  border solid 1px
+`;
 const NicknameTitle = styled.div`
   text-align: center;
   margin-top: 10px;
