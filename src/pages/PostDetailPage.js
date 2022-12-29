@@ -12,7 +12,6 @@ const PostDetailPage = () => {
   const param = useParams().postId;
 
   const target = useSelector(state => state.Post.targetPost);
-  console.log(target);
 
   //더미데이터
   const a = {

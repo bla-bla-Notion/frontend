@@ -7,6 +7,7 @@ import UserItem from '../components/userItem';
 import { useDispatch, useSelector } from 'react-redux';
 import { __getPost } from '../redux/modules/PostsSlice';
 import './snow.css';
+import Modal from '../components/Modal';
 
 function MainPage() {
   const TOOLBAR_OPTIONS = [
@@ -25,7 +26,6 @@ function MainPage() {
   const [quill, setQuill] = useState(); //quill접근을 어디서든 가능하게
 
   const { postList, isLoading } = useSelector(state => state.Post);
-  console.log(postList);
   const dispatch = useDispatch();
 
   //서버에 저장된 postList가져오기
@@ -46,18 +46,15 @@ function MainPage() {
 
     socket.on('load-document', document => {
       quill.setContents(document);
-      console.log('기존 데이터 : ', document);
     });
   }, [socket, quill]);
   //작성창 데이터 보내기
   useEffect(() => {
     if (socket == null || quill == null) return;
     const handler = (delta, oldDelta, source) => {
-      console.log(delta);
       if (source !== 'user') return;
       socket.emit('send-changes', delta);
       socket.emit('save-document', quill.getContents());
-      console.log(quill.getContents());
     };
     quill.on('text-change', handler);
     return () => {
@@ -145,7 +142,6 @@ function MainPage() {
   //     mainPost.setContents(delta);
   //   };
   //   socket.on('receive-changes', handler => {
-  //     console.log(handler);
   //   });
   //   return () => {
   //     socket.off('receive-changes', handler);
@@ -216,6 +212,7 @@ function MainPage() {
         </MainPostList>
       </SideBar>
       <Textbox>
+        <Modal />
         <div>
           <NewUserTextBox>
             <div style={{ color: 'rgb(166, 208, 248)' }}>{newUserText}</div>
@@ -266,7 +263,6 @@ const MainPostList = styled.div`
   display: block;
   margin-top: 30px;
   padding-left: 10px;
-  border solid 1px
 `;
 const NicknameTitle = styled.div`
   text-align: center;
