@@ -8,6 +8,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { __getPost } from '../redux/modules/PostsSlice';
 import './snow.css';
 import Modal from '../components/Modal';
+import { Link } from 'react-router-dom';
 
 function MainPage() {
   const TOOLBAR_OPTIONS = [
@@ -207,7 +208,11 @@ function MainPage() {
             ? null
             : postList
             ? postList.map(post => (
-                <div key={post.pageId}>{post.createdAt}</div>
+                <CreatedAt>
+                  <Link to={`/${post.pageId}`} key={post.pageId}>
+                    {post.createdAt}
+                  </Link>
+                </CreatedAt>
               ))
             : null}
         </MainList>
@@ -296,6 +301,11 @@ const NewUserTextBox = styled.div`
   align-items: center;
   justify-content: center;
   margin: 10px 0px;
+`;
+
+const CreatedAt = styled.div`
+  display: flex;
+  flex-direction: column;
 `;
 
 export default MainPage;
