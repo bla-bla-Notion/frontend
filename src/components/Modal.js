@@ -34,7 +34,6 @@ function Modal() {
 const ModalBackground = styled.div`
   width: 53.5vw;
   height: 100vh;
-  background-color: rgba(200, 200, 200, 0.5);
   position: fixed;
   display: flex;
   justify-content: center;
@@ -49,6 +48,7 @@ const ModalContainer = styled.div`
   display: flex;
   flex-direction: column;
   padding: 25px;
+  user-select: none;
 `;
 
 const TitleCloseBtn = styled.div`
@@ -86,10 +86,14 @@ const ModalButton = styled.button`
   border-radius: 8px;
   font-size: 20px;
   cursor: pointer;
+  &:hover {
+    background-color: #517fd6;
+  }
 `;
 
 const ModalOverall = styled.div`
   display: ${({ modalOpen }) => (modalOpen ? '' : 'none')};
+  z-index: 2;
 `;
 
 export default Modal;

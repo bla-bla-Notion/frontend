@@ -84,9 +84,10 @@ const HeaderItem = styled.div`
   white-space: nowrap;
   text-overflow: ellipsis;
   overflow: hidden;
+  border-radius: 10px;
+  transition: background-color, 0.5s;
   &:hover {
     background-color: rgb(239, 239, 239);
-    border-radius: 10px;
   }
 `;
 

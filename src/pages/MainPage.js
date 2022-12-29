@@ -27,13 +27,13 @@ function MainPage() {
   const [quill, setQuill] = useState(); //quill접근을 어디서든 가능하게
 
   const { postList, isLoading } = useSelector(state => state.Post);
-  console.log(postList);
   const dispatch = useDispatch();
 
   //서버에 저장된 postList가져오기
   useEffect(() => {
     dispatch(__getPost());
   }, [dispatch]);
+
   //서버와 socket.io 연결
   useEffect(() => {
     const s = io(`${process.env.REACT_APP_URL}`);
@@ -42,6 +42,7 @@ function MainPage() {
       s.disconnect();
     };
   }, []);
+
   //사이트 처음 접속 시 이미 존재하는 데이터 받아오기
   useEffect(() => {
     if (socket == null || quill == null) return;
@@ -50,6 +51,7 @@ function MainPage() {
       quill.setContents(document);
     });
   }, [socket, quill]);
+
   //작성창 데이터 보내기
   useEffect(() => {
     if (socket == null || quill == null) return;
@@ -57,12 +59,14 @@ function MainPage() {
       if (source !== 'user') return;
       socket.emit('send-changes', delta);
       socket.emit('save-document', quill.getContents());
+      console.log(quill.getContents());
     };
     quill.on('text-change', handler);
     return () => {
       quill.off('text-change', handler);
     };
   }, [socket, quill]);
+
   //접속유저 받아오기
   const [users, setUsers] = useState([]);
   const [newUserText, setNewUserText] = useState('');
@@ -78,6 +82,7 @@ function MainPage() {
       setUsers(data.usersList);
     });
   }, [socket, quill, users]);
+
   //새로운 유저 닉네임 상단에 띄우기
   useEffect(() => {
     setTimeout(() => {
@@ -85,6 +90,7 @@ function MainPage() {
       setJustText('');
     }, 5000);
   }, [newUserText]);
+
   //변경데이터 받아오기, broadcast
   useEffect(() => {
     if (socket == null || quill == null) return;
@@ -96,6 +102,7 @@ function MainPage() {
       socket.off('receive-changes', handler);
     };
   }, [socket, quill]);
+
   //textarea Quill
   const wrapperRef = useCallback(wrapper => {
     if (wrapper == null) return;
@@ -109,6 +116,19 @@ function MainPage() {
     setQuill(q);
   }, []);
 
+  //db와 사이드바에 보여주는 데이터의 동기화를 위한 코드
+  const SAVE_INTERVAL_MS = 1000 * 60 * 10;
+  useEffect(() => {
+    if (socket == null || quill == null) return;
+    const interval = setInterval(() => {
+      window.location.reload();
+    }, SAVE_INTERVAL_MS);
+    return () => {
+      clearInterval(interval);
+    };
+  }, [socket, quill]);
+
+  //눈내리는 모양 만들기
   const body = document.querySelector('body');
   const MIN_DURATION = 10;
   function makeSnowflake() {
@@ -116,79 +136,21 @@ function MainPage() {
     const delay = Math.random() * 10;
     const initialOpacity = Math.random();
     const duration = Math.random() * 20 + MIN_DURATION;
-
     snowflake.classList.add('snowflake');
     snowflake.style.left = `${Math.random() * window.screen.width}px`;
     snowflake.style.animationDelay = `${delay}s`;
     snowflake.style.opacity = initialOpacity;
     snowflake.style.animation = `fall ${duration}s linear`;
-
     body.appendChild(snowflake);
-
     setTimeout(() => {
       body.removeChild(snowflake);
       makeSnowflake();
     }, (duration + delay) * 1000);
   }
-
   makeSnowflake();
   for (let index = 0; index < 50; index++) {
     makeSnowflake(makeSnowflake, 500 * index);
   }
-
-  // 주석 모아놓은 곳
-  // const [mainPost, setMainPost] = useState();
-  // useEffect(() => {
-  //   if (socket == null || quill == null) return;
-  //   const handler = delta => {
-  //     mainPost.setContents(delta);
-  //   };
-  //   socket.on('receive-changes', handler => {
-  //   });
-  //   return () => {
-  //     socket.off('receive-changes', handler);
-  //   };
-  // }, [socket, quill, mainPost]);
-
-  // const showRef = useCallback(showRef => {
-  //   if (showRef == null) return;
-  //   showRef.innerHTML = '';
-  //   const editor = document.createElement('div');
-  //   showRef.append(editor);
-  //   const Q = new Quill(editor, {
-  //     modules: { toolbar: false },
-  //     readOnly: true,
-  //   });
-
-  //   setMainPost(Q);
-  // }, []);
-
-  // const [visible, SetVisible] = useState(true);
-
-  // const onToggleHandler = e => {
-  //   e.preventDefault();
-  //   SetVisible(!visible);
-  // };
-
-  // const onCompleteHandler = e => {
-  //   e.preventDefault();
-  //   SetVisible(!visible);
-  // };
-
-  // const renderChat = () => {
-  //   return (
-  //     <div>
-  //       <h3>
-  //         <div
-  //           style={{ width: '1200px', height: '1800px' }}
-  //           name="message"
-  //           id="mainShow"
-  //           ref={showRef}
-  //         />
-  //       </h3>
-  //     </div>
-  //   );
-  // };
 
   return (
     <Wrap>
@@ -209,7 +171,15 @@ function MainPage() {
             : postList
             ? postList.map(post => (
                 <CreatedAt>
-                  <Link to={`/${post.pageId}`} key={post.pageId}>
+                  <Link
+                    style={{
+                      color: 'black',
+                      textDecoration: 'none',
+                      userSelect: 'none',
+                    }}
+                    to={`/${post.pageId}`}
+                    key={post.pageId}
+                  >
                     {post.createdAt}
                   </Link>
                 </CreatedAt>
@@ -251,7 +221,7 @@ const Wrap = styled.div`
 const SideBar = styled.div`
   width: 20%;
   min-width: 170px;
-  height: 1000px;
+  height: 1200px;
   background: rgb(247, 247, 245);
   display: flex;
   flex-direction: column;
@@ -269,11 +239,6 @@ const NicknameList = styled.div`
 `;
 
 const MainList = styled.div`
-  /* position: fixed;
-  bottom: 0;
-  width: 100%;
-  margin-left: 20px;
-  margin-bottom: 10px; */
   position: relative;
   transform: translateY(340%);
   padding-bottom: 10px;
@@ -306,6 +271,10 @@ const NewUserTextBox = styled.div`
 const CreatedAt = styled.div`
   display: flex;
   flex-direction: column;
+  margin-top: 5px;
+  &:hover {
+    background-color: rgb(218, 218, 215);
+  }
 `;
 
 export default MainPage;

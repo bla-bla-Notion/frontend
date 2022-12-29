@@ -28,14 +28,6 @@ export const __getTargetPost = createAsyncThunk(
   async (payload, thunkAPI) => {
     try {
       const { data } = await apis.getpost(payload);
-      // .then(res => {
-      //   console.log(res);
-      //   if (res.status === 400) {
-      //     window.alert(res.body.errorMessage);
-      //     window.history.back();
-      //   }
-      // });
-      // console.log(data);
       return thunkAPI.fulfillWithValue(data.data);
     } catch (err) {
       console.log(err);
@@ -78,6 +70,22 @@ const postSlice = createSlice({
       .addCase(__getTargetPost.fulfilled, (state, action) => {
         state.isLoading = false;
         state.targetPost = action.payload;
+        if (!action.payload.document) {
+          state.targetPost = {
+            ...state.targetPost,
+            document: {
+              ops: [
+                {
+                  insert: '해당 시간에 작성된 내용이 없습니다!',
+                },
+                {
+                  attributes: { align: 'center', header: 1 },
+                  insert: '\n',
+                },
+              ],
+            },
+          };
+        }
       })
       //로딩 완료. 실패 시
       .addCase(__getTargetPost.rejected, (state, action) => {
@@ -87,7 +95,4 @@ const postSlice = createSlice({
   },
 });
 
-// // 액션크리에이터는 컴포넌트에서 사용하기 위해 export 하고;
-export const {} = postSlice.actions;
-// // reducer 는 configStore에 등록하기 위해 export default 합니다.
 export default postSlice.reducer;
