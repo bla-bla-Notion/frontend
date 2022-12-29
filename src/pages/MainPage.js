@@ -59,7 +59,6 @@ function MainPage() {
       if (source !== 'user') return;
       socket.emit('send-changes', delta);
       socket.emit('save-document', quill.getContents());
-      console.log(quill.getContents());
     };
     quill.on('text-change', handler);
     return () => {
@@ -180,7 +179,7 @@ function MainPage() {
                     to={`/${post.pageId}`}
                     key={post.pageId}
                   >
-                    {post.createdAt}
+                    {new Date(post.createdAt).toLocaleString()}
                   </Link>
                 </CreatedAt>
               ))
