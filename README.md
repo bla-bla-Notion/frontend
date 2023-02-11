@@ -1,5 +1,7 @@
 # 4조 bla-bla-Notion
 
+bla-bla notion 프로젝트 시연 동영상 https://youtu.be/0JXgTz_dcvg
+
 - 프로젝트소개 : Notion의 웹소켓 통신기능을 클론한 프로젝트입니다.
 
 - frontend : React, backend : NodeJS
